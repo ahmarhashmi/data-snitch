@@ -1,4 +1,4 @@
-package com.vroozi.datastitch.model;
+package com.vroozi.datasnitch.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;

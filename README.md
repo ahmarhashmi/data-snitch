@@ -1,1 +1,1 @@
-# data-stitch
+# data-snitch

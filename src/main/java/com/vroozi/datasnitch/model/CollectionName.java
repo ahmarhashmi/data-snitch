@@ -1,4 +1,4 @@
-package com.vroozi.datastitch.model;
+package com.vroozi.datasnitch.model;
 
 public enum CollectionName {
   BUDGET

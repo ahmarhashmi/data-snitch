@@ -1,10 +1,10 @@
-package com.vroozi.datastitch;
+package com.vroozi.datasnitch;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DataStitchApplicationTests {
+class DataSnitchApplicationTests {
 
 	@Test
 	void contextLoads() {

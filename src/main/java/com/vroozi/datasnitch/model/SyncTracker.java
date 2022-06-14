@@ -1,6 +1,6 @@
-package com.vroozi.datastitch.model;
+package com.vroozi.datasnitch.model;
 
-import static com.vroozi.datastitch.util.Constants.COLLECTION_SYNC_TRACKER;
+import static com.vroozi.datasnitch.util.Constants.COLLECTION_SYNC_TRACKER;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;

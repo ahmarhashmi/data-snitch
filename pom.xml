@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.vroozi</groupId>
-	<artifactId>data-stitch</artifactId>
+	<artifactId>data-snitch</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>data-stitch</name>
+	<name>data-snitch</name>
 	<description>Hackathon project for VROOZI</description>
 	<properties>
 		<java.version>17</java.version>

@@ -1,4 +1,4 @@
-package com.vroozi.datastitch.util;
+package com.vroozi.datasnitch.util;
 
 public class Constants {
 

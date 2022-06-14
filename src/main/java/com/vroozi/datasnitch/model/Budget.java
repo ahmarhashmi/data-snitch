@@ -1,6 +1,6 @@
-package com.vroozi.datastitch.model;
+package com.vroozi.datasnitch.model;
 
-import static com.vroozi.datastitch.util.Constants.COLLECTION_BUDGET;
+import static com.vroozi.datasnitch.util.Constants.COLLECTION_BUDGET;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
