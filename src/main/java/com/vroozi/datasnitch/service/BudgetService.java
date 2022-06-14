@@ -4,5 +4,5 @@ import com.vroozi.datasnitch.model.CollectionName;
 
 public interface BudgetService {
 
-  void readAndPost(CollectionName collectionName);
+  void readAndPost(String unitId, CollectionName collectionName);
 }

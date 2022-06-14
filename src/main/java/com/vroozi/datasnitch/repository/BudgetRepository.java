@@ -11,5 +11,5 @@ public interface BudgetRepository extends MongoRepository<Budget, String> {
 
   List<Budget> findByLastModifiedDateGreaterThan(Date lastModifiedDate);
 
-  List<Budget> findAllByActiveTrue();
+  List<Budget> findAllByUnitId(String unitId);
 }

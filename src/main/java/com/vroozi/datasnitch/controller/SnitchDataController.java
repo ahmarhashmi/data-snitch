@@ -23,9 +23,12 @@ public class SnitchDataController {
 
   }
 
-  @GetMapping(value = "/collections/{collectionName}/upload-budget-to-s3", consumes = APPLICATION_JSON_VALUE)
-  public void sendLatestBudgetToS3(@PathVariable("collectionName") CollectionName collectionName) {
-    budgetService.readAndPost(collectionName);
+  @GetMapping(value = "organization/{unitId}/collections/{collectionName}/upload-budget-to-s3", consumes = APPLICATION_JSON_VALUE)
+  public void sendLatestBudgetToS3(
+      @PathVariable("unitId") String unitId,
+      @PathVariable("collectionName") CollectionName collectionName
+  ) {
+    budgetService.readAndPost(unitId, collectionName);
   }
 
 }
