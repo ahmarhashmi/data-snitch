@@ -1,6 +1,5 @@
 package com.vroozi.datasnitch.util;
 
-import com.google.gson.JsonArray;
 import com.vroozi.datasnitch.model.Budget;
 import com.vroozi.datasnitch.model.DurationType;
 import com.vroozi.datasnitch.model.MetaData;
@@ -9,6 +8,7 @@ import com.vroozi.datasnitch.model.PeriodicAllocationType;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -37,16 +37,27 @@ public class Converter {
     try {
       Class objClass = Class.forName(budget.getClass().getName());
       Class supperClass = objClass.getSuperclass();
+      Field[] childFields = null;
+      if (Objects.nonNull(budget.getBudgetAssociations().get(0))) {
+        childFields = getChildFields(budget.getBudgetAssociations().get(0).getClass());
+      }
       Field[] fields = objClass.getDeclaredFields();
       Field[] parentFields = supperClass.getDeclaredFields();
       String jsonStr = JsonUtils.toSafeJsonString(budget);
       JSONObject jsonObject = new JSONObject(jsonStr);
       // check fields that are initialized in the Model class
+      Field[] finalChildFields = childFields;
       jsonObject.keySet().forEach(key -> {
         Object value = jsonObject.get(key);
         MetaData metaData = new MetaData();
-        metaData.setValue(value);
         metaData.setType(value.getClass());
+        if (metaData.getType() == JSONArray.class && finalChildFields != null) {
+          List<Map<String, MetaData>> childrenMapList = getChildrenMapList(jsonObject,
+              finalChildFields, key);
+          metaData.setValue(childrenMapList);
+        } else {
+          metaData.setValue(value);
+        }
         if (metaData.getType() == String.class) {
           metaData.setLength(((String) value).length());
         }
@@ -58,6 +69,23 @@ public class Converter {
       ex.printStackTrace();
     }
     return dataMap;
+  }
+
+  static Field[] getChildFields(Class clazz) {
+    return clazz.getDeclaredFields();
+  }
+
+  static List<Map<String, MetaData>> getChildrenMapList(JSONObject jsonObject, Field[] fields,
+      String key) {
+    JSONArray jsonArray = jsonObject.getJSONArray(key);
+    List<Map<String, MetaData>> childrenMapList = new ArrayList<>();
+    for (int index = 0; index < jsonArray.length(); index++) {
+      JSONObject jObject = jsonArray.getJSONObject(index);
+      Map<String, MetaData> childDataMap = new HashMap<>();
+      putInMap(fields, childDataMap, jObject);
+      childrenMapList.add(childDataMap);
+    }
+    return childrenMapList;
   }
 
   static void putInMap(Field[] fields, Map<String, MetaData> dataMap, JSONObject jsonObject) {
@@ -101,7 +129,7 @@ public class Converter {
       if (NVARCHAR.equals(type)) {
         if (!(Objects.isNull(value.getValue()) || "null".equals(value.getValue().toString()))) {
           keyJoiner.add(key);
-          values.add( value.getValue());
+          values.add(value.getValue());
         }
       } else if (BOOL.equals(type)) {
         keyJoiner.add(key);
@@ -109,7 +137,7 @@ public class Converter {
       } else if (INT.equals(type) || INT8.equals(type)) {
         keyJoiner.add(key);
         values.add(new Integer(value.getValue().toString()));
-      }  else if (DATE.equals(type)) {
+      } else if (DATE.equals(type)) {
         keyJoiner.add(key);
         values.add(new Timestamp(new Long(value.getValue().toString())).toString());
       }
