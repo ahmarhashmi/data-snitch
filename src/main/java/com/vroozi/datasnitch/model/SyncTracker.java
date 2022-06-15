@@ -5,6 +5,7 @@ import static com.vroozi.datasnitch.util.Constants.COLLECTION_SYNC_TRACKER;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -17,12 +18,10 @@ public class SyncTracker implements Serializable {
   private String id;
   private String unitId;
   private CollectionName collectionName;
-
-  @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
-  private LocalDateTime createdDate;
-
-  @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
-  private LocalDateTime lastReadDate;
+  private Date lastReadDate;
+  private Date createdDate;
+  private Integer readRecordCount;
+  private Integer postedRecordCount;
 
   private boolean uploaded;
 
@@ -42,22 +41,6 @@ public class SyncTracker implements Serializable {
     this.unitId = unitId;
   }
 
-  public LocalDateTime getCreatedDate() {
-    return createdDate;
-  }
-
-  public void setCreatedDate(final LocalDateTime createdDate) {
-    this.createdDate = createdDate;
-  }
-
-  public LocalDateTime getLastReadDate() {
-    return lastReadDate;
-  }
-
-  public void setLastReadDate(LocalDateTime lastReadDate) {
-    this.lastReadDate = lastReadDate;
-  }
-
   public boolean isUploaded() {
     return uploaded;
   }
@@ -72,5 +55,37 @@ public class SyncTracker implements Serializable {
 
   public void setCollectionName(CollectionName collectionName) {
     this.collectionName = collectionName;
+  }
+
+  public Date getLastReadDate() {
+    return lastReadDate;
+  }
+
+  public void setLastReadDate(Date lastReadDate) {
+    this.lastReadDate = lastReadDate;
+  }
+
+  public Date getCreatedDate() {
+    return createdDate;
+  }
+
+  public void setCreatedDate(Date createdDate) {
+    this.createdDate = createdDate;
+  }
+
+  public Integer getReadRecordCount() {
+    return readRecordCount;
+  }
+
+  public void setReadRecordCount(Integer readRecordCount) {
+    this.readRecordCount = readRecordCount;
+  }
+
+  public Integer getPostedRecordCount() {
+    return postedRecordCount;
+  }
+
+  public void setPostedRecordCount(Integer postedRecordCount) {
+    this.postedRecordCount = postedRecordCount;
   }
 }

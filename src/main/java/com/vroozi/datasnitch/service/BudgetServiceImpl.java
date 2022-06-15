@@ -2,6 +2,7 @@ package com.vroozi.datasnitch.service;
 
 import com.vroozi.datasnitch.model.Budget;
 import com.vroozi.datasnitch.model.CollectionName;
+import com.vroozi.datasnitch.model.SyncTracker;
 import com.vroozi.datasnitch.repository.BudgetRepository;
 import com.vroozi.datasnitch.repository.SyncTrackerRepository;
 import com.vroozi.datasnitch.service.rest.RestClient;
@@ -10,12 +11,13 @@ import com.vroozi.datasnitch.util.JsonUtils;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,31 +44,72 @@ public class BudgetServiceImpl implements BudgetService {
     String folderName = restServiceUrl.getFolderName();
     syncTrackerRepository.findFirstByUnitIdAndCollectionNameOrderByLastReadDateDesc(
         unitId, collectionName).map(syncTracker -> {
-      ZonedDateTime zdt = syncTracker.getLastReadDate().atZone(ZoneId.systemDefault());
-      Date convertedDate = Date.from(zdt.toInstant());
-      List<Budget> budgets = budgetRepository.findByLastModifiedDateGreaterThan(convertedDate);
-      return true;
-    }).orElse(uploadAll(unitId, bucketName, folderName));
+      List<Budget> budgets = budgetRepository.findByLastModifiedDateGreaterThan(
+          syncTracker.getLastReadDate());
+      if (CollectionUtils.isNotEmpty(budgets)) {
+        SyncTracker tracker = createSyncTracker(unitId, collectionName, budgets.size());
+        return uploadAll(unitId, budgets, collectionName, bucketName, folderName, tracker);
+      }
+      return false;
+    }).orElseGet(() -> uploadAllBudgets(unitId, collectionName, bucketName, folderName));
   }
 
-  boolean uploadAll(String unitId, String bucketName, String folderName) {
-    List<Budget> budgets = budgetRepository.findAllByUnitId(unitId);
+  boolean uploadAllBudgets(
+      String unitId, CollectionName collectionName, String bucketName, String folderName
+  ) {
+    List<Budget> budgets = budgetRepository.findByUnitId(unitId);
+    if (CollectionUtils.isNotEmpty(budgets)) {
+      SyncTracker tracker = createSyncTracker(unitId, collectionName, budgets.size());
+      return uploadAll(unitId, budgets, collectionName, bucketName, folderName, tracker);
+    }
+    return false;
+  }
+
+  boolean uploadAll(
+      String unitId, List<Budget> budgets, CollectionName collectionName, String bucketName,
+      String folderName, SyncTracker tracker
+  ) {
+    MutableInt uploadedRecord = new MutableInt(0);
     budgets.forEach(budget -> {
-      String fileName =
-          "Budget_" + budget.getName() + "_" + DATE_TIME_FORMAT.format(new Date()) + ".json";
-      try {
-        String jsonString = JsonUtils.toSafeJsonString(budget);
-        if (StringUtils.isNotBlank(jsonString)) {
-          File jsonFile = generateJsonFile(jsonString, fileName);
-          if (Objects.nonNull(jsonFile)) {
-            restClient.upload(jsonFile, bucketName, budget.getUnitId(), folderName);
-          }
-        }
-      } catch (Exception ex) {
-        ex.printStackTrace();
+      String fileName = "Budget_" + budget.getName() + "_" + DATE_TIME_FORMAT.format(new Date()) + ".json";
+      if (uploadRecord(unitId, budget, fileName, bucketName, folderName)){
+        uploadedRecord.increment();
       }
     });
-    return true;
+    if (uploadedRecord.intValue() > 0) {
+      tracker.setPostedRecordCount(uploadedRecord.intValue());
+      syncTrackerRepository.save(tracker);
+      return true;
+    }
+    return false;
+  }
+
+  boolean uploadRecord(String unitId, Object record, String fileName, String bucketName, String folderName) {
+    try {
+      String jsonString = JsonUtils.toSafeJsonString(record);
+      if (StringUtils.isNotBlank(jsonString)) {
+        File jsonFile = generateJsonFile(jsonString, fileName);
+        if (Objects.nonNull(jsonFile)) {
+          return restClient.upload(jsonFile, bucketName, unitId, folderName) != null;
+        }
+      }
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    return false;
+  }
+
+  SyncTracker createSyncTracker(
+      String unitId, CollectionName collectionName, Integer recordReadCount
+  ) {
+    SyncTracker recordTracker = new SyncTracker();
+    Date date = Calendar.getInstance().getTime();
+    recordTracker.setLastReadDate(date);
+    recordTracker.setCreatedDate(date);
+    recordTracker.setReadRecordCount(recordReadCount);
+    recordTracker.setCollectionName(collectionName);
+    recordTracker.setUnitId(unitId);
+    return recordTracker;
   }
 
   protected File generateJsonFile(String data, String fileName) throws IOException {
