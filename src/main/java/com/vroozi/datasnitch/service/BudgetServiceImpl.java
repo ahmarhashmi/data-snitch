@@ -69,7 +69,7 @@ public class BudgetServiceImpl implements BudgetService {
       SyncTracker tracker = createSyncTracker(unitId, collectionName, budgets.size());
       //return uploadAll(unitId, budgets, collectionName, bucketName, folderName, tracker);
       Map<String, MetaData> dataMap = Converter.convertToMetaDataMap(budgets.get(0));
-      budgetJdbcService.insertBudget(dataMap);
+      budgetJdbcService.insertBudget(dataMap, "budget");
       //String headerColumns = Converter.concatenateColumns(dataMap);
       return true;
     }

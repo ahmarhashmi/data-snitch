@@ -19,7 +19,9 @@ public class BudgetJdbcDaoImpl implements BudgetJdbcDao {
       Map<String, MetaData> dataMap, Pair<String, List<Object>> pair, String qMarks,
       String tableName
   ) {
-    StringBuilder stringBuilder = new StringBuilder("INSERT INTO tech_hunter_hackathon.budget(");
+    StringBuilder stringBuilder = new StringBuilder("INSERT INTO tech_hunter_hackathon.")
+        .append(tableName)
+        .append("(");
     jdbcTemplate.update(
         stringBuilder.append(pair.getLeft())
             .append(") VALUES (")

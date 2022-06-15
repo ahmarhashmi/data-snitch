@@ -16,11 +16,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Converter {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(Converter.class);
 
   public static final String NVARCHAR = "NVARCHAR";
   public static final String BOOL = "BOOL";
@@ -148,23 +153,32 @@ public class Converter {
     return Pair.of(keyJoiner.toString(), values);
   }
 
-  public static Pair<String, List<Object>> getChildren(Map<String, MetaData> dataMap) {
-    StringJoiner keyJoiner = new StringJoiner(",");
-    List<Object> values = new LinkedList<>();
+  public static Map<String, List<Map<String, MetaData>>> getChildren(
+      Map<String, MetaData> dataMap) {
+    Map<String, List<Map<String, MetaData>>> childMetaData = new HashMap<>();
     dataMap.forEach((key, value) -> {
-      String type = getType(value.getType());
-      if (LIST.equals(type)) {
-        // write logic to extract children
+      if (Objects.nonNull(value) && Objects.nonNull(value.getValue())) {
+        String type = getType(value.getType());
+        if (LIST.equals(type)) {
+          List<Map<String, MetaData>> child = new ArrayList<>();
+          try {
+            child = (List<Map<String, MetaData>>) value.getValue();
+          } catch (Exception e) {
+            LOGGER.info("Exception occoured while parsing the list for field {}", key);
+          }
+          if (CollectionUtils.isNotEmpty(child)) {
+            childMetaData.put(key, child);
+          }
+        }
       }
     });
-    return Pair.of(keyJoiner.toString(), values);
+    return childMetaData;
   }
+
 
   public static String getQuestionMarks(List<Object> values) {
     StringJoiner joiner = new StringJoiner(",");
-    values.forEach(value -> {
-      joiner.add("?");
-    });
+    values.forEach(value -> joiner.add("?"));
     return joiner.toString();
   }
 
