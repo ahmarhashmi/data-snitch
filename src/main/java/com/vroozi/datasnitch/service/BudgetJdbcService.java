@@ -7,6 +7,8 @@ public interface BudgetJdbcService {
 
   void createTable(Map<String, MetaData> dataMap);
 
-  void insertBudget(Map<String, MetaData> dataMap, String tableName);
+  void insertBudget(
+      Map<String, MetaData> dataMap, String tableName, String parentId, boolean isChild
+  );
 
 }

@@ -129,7 +129,9 @@ public class Converter {
     return joiner.toString();
   }
 
-  public static Pair<String, List<Object>> getColumns(Map<String, MetaData> dataMap) {
+  public static Pair<String, List<Object>> getColumns(
+      Map<String, MetaData> dataMap, String parentId, boolean isChild
+  ) {
     StringJoiner keyJoiner = new StringJoiner(",");
     List<Object> values = new LinkedList<>();
     dataMap.forEach((key, value) -> {
@@ -150,6 +152,10 @@ public class Converter {
         values.add(new Timestamp(new Long(value.getValue().toString())).toString());
       }
     });
+    if (isChild) {
+      keyJoiner.add("parentId");
+      values.add(parentId);
+    }
     return Pair.of(keyJoiner.toString(), values);
   }
 
