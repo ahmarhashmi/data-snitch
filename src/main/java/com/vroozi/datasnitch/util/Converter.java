@@ -116,6 +116,19 @@ public class Converter {
     });
     return Pair.of(keyJoiner.toString(), values);
   }
+
+  public static Pair<String, List<Object>> getChildren(Map<String, MetaData> dataMap) {
+    StringJoiner keyJoiner = new StringJoiner(",");
+    List<Object> values = new LinkedList<>();
+    dataMap.forEach((key, value) -> {
+      String type = getType(value.getType());
+      if (LIST.equals(type)) {
+        // write logic to extract children
+      }
+    });
+    return Pair.of(keyJoiner.toString(), values);
+  }
+
   public static String getQuestionMarks(List<Object> values) {
     StringJoiner joiner = new StringJoiner(",");
     values.forEach(value -> {
