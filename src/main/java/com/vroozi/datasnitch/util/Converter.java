@@ -91,6 +91,9 @@ public class Converter {
   static void putInMap(Field[] fields, Map<String, MetaData> dataMap, JSONObject jsonObject) {
     if (fields != null && fields.length > 0) {
       for (Field field : fields) {
+        if (field.getType() == List.class) {
+          continue;
+        }
         Object value = jsonObject.get(field.getName());
         MetaData metaData = new MetaData();
         metaData.setValue(value);
