@@ -2,10 +2,12 @@ package com.vroozi.datasnitch.service;
 
 import com.vroozi.datasnitch.model.Budget;
 import com.vroozi.datasnitch.model.CollectionName;
+import com.vroozi.datasnitch.model.MetaData;
 import com.vroozi.datasnitch.model.SyncTracker;
 import com.vroozi.datasnitch.repository.BudgetRepository;
 import com.vroozi.datasnitch.repository.SyncTrackerRepository;
 import com.vroozi.datasnitch.service.rest.RestClient;
+import com.vroozi.datasnitch.util.Converter;
 import com.vroozi.datasnitch.util.FileUtils;
 import com.vroozi.datasnitch.util.JsonUtils;
 import java.io.File;
@@ -14,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +41,9 @@ public class BudgetServiceImpl implements BudgetService {
   @Autowired
   private RestServiceUrl restServiceUrl;
 
+  @Autowired
+  private BudgetJdbcService budgetJdbcService;
+
   @Override
   public void readAndPost(String unitId, CollectionName collectionName) {
     String bucketName = restServiceUrl.getBucketName();
@@ -48,7 +54,8 @@ public class BudgetServiceImpl implements BudgetService {
           syncTracker.getLastReadDate());
       if (CollectionUtils.isNotEmpty(budgets)) {
         SyncTracker tracker = createSyncTracker(unitId, collectionName, budgets.size());
-        return uploadAll(unitId, budgets, collectionName, bucketName, folderName, tracker);
+        //return uploadAll(unitId, budgets, collectionName, bucketName, folderName, tracker);
+        return true;
       }
       return false;
     }).orElseGet(() -> uploadAllBudgets(unitId, collectionName, bucketName, folderName));
@@ -60,7 +67,11 @@ public class BudgetServiceImpl implements BudgetService {
     List<Budget> budgets = budgetRepository.findByUnitId(unitId);
     if (CollectionUtils.isNotEmpty(budgets)) {
       SyncTracker tracker = createSyncTracker(unitId, collectionName, budgets.size());
-      return uploadAll(unitId, budgets, collectionName, bucketName, folderName, tracker);
+      //return uploadAll(unitId, budgets, collectionName, bucketName, folderName, tracker);
+      Map<String, MetaData> dataMap = Converter.convertToMetaDataMap(budgets.get(0));
+      budgetJdbcService.insertBudget(dataMap);
+      //String headerColumns = Converter.concatenateColumns(dataMap);
+      return true;
     }
     return false;
   }
