@@ -83,12 +83,26 @@ public class Converter {
   static List<Map<String, MetaData>> getChildrenMapList(JSONObject jsonObject, Field[] fields,
       String key) {
     JSONArray jsonArray = jsonObject.getJSONArray(key);
+    List<Object> elementList = new ArrayList<>();
     List<Map<String, MetaData>> childrenMapList = new ArrayList<>();
-    for (int index = 0; index < jsonArray.length(); index++) {
-      JSONObject jObject = jsonArray.getJSONObject(index);
-      Map<String, MetaData> childDataMap = new HashMap<>();
-      putInMap(fields, childDataMap, jObject);
-      childrenMapList.add(childDataMap);
+    Map<String, MetaData> childListMap = new HashMap<>();
+    if (jsonArray.optJSONObject(0) == null) {
+      for (int index = 0; index < jsonArray.length(); index++) {
+        Object element = jsonArray.get(index);
+        elementList.add(element);
+      }
+      MetaData metaData = new MetaData();
+      metaData.setValue(elementList);
+      metaData.setType(List.class);
+      childListMap.put(key, metaData);
+      childrenMapList.add(childListMap);
+    } else {
+      for (int index = 0; index < jsonArray.length(); index++) {
+        JSONObject jObject = jsonArray.getJSONObject(index);
+        Map<String, MetaData> childDataMap = new HashMap<>();
+        putInMap(fields, childDataMap, jObject);
+        childrenMapList.add(childDataMap);
+      }
     }
     return childrenMapList;
   }
@@ -129,7 +143,10 @@ public class Converter {
     return joiner.toString();
   }
 
-  public static Pair<String, List<Object>> getColumns(
+  /**
+   * Returns Pair of comma separated column names (Left) and values (Right)
+   */
+  public static Pair<String, List<Object>> getColumnHeadersAndValues(
       Map<String, MetaData> dataMap, String parentId, boolean isChild
   ) {
     StringJoiner keyJoiner = new StringJoiner(",");
@@ -181,7 +198,9 @@ public class Converter {
     return childMetaData;
   }
 
-
+  /**
+   * Returns comma separated question marks (?) to be used for VALUES in the JDBC queries
+   */
   public static String getQuestionMarks(List<Object> values) {
     StringJoiner joiner = new StringJoiner(",");
     values.forEach(value -> joiner.add("?"));
@@ -204,17 +223,9 @@ public class Converter {
       return INT;
     } else if (type == Long.class || type == long.class) {
       return INT8;
-    } else if (type == List.class) {
-      return LIST;
-    } else if (type == JSONArray.class) {
+    } else if (type == List.class || type == JSONArray.class) {
       return LIST;
     }
     return NVARCHAR;
-  }
-
-  public static void main(String[] args) {
-    String abc = "abc";
-
-    System.out.println("'" + abc + "'");
   }
 }

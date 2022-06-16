@@ -1,5 +1,6 @@
 package com.vroozi.datasnitch.service;
 
+import com.vroozi.datasnitch.dao.BudgetJdbcDao;
 import com.vroozi.datasnitch.model.Budget;
 import com.vroozi.datasnitch.model.CollectionName;
 import com.vroozi.datasnitch.model.MetaData;
@@ -21,6 +22,7 @@ import java.util.Objects;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +44,7 @@ public class BudgetServiceImpl implements BudgetService {
   private RestServiceUrl restServiceUrl;
 
   @Autowired
-  private BudgetJdbcService budgetJdbcService;
+  private BudgetJdbcDao budgetJdbcDao;
 
   @Override
   public void readAndPost(String unitId, CollectionName collectionName) {
@@ -69,7 +71,7 @@ public class BudgetServiceImpl implements BudgetService {
       SyncTracker tracker = createSyncTracker(unitId, collectionName, budgets.size());
       //return uploadAll(unitId, budgets, collectionName, bucketName, folderName, tracker);
       Map<String, MetaData> dataMap = Converter.convertToMetaDataMap(budgets.get(0));
-      budgetJdbcService.insertBudget(
+      insertBudget(
           dataMap, "budget", dataMap.get("id").getValue().toString(), false
       );
       //String headerColumns = Converter.concatenateColumns(dataMap);
@@ -127,5 +129,19 @@ public class BudgetServiceImpl implements BudgetService {
 
   protected File generateJsonFile(String data, String fileName) throws IOException {
     return FileUtils.writeStringToFile(data, restServiceUrl.getReportPath(), fileName);
+  }
+
+  void insertBudget(
+      Map<String, MetaData> dataMap, String tableName, String parentId, boolean isChild
+  ) {
+    Pair<String, List<Object>> pair = Converter.getColumnHeadersAndValues(dataMap, parentId, isChild);
+    String qMarks = Converter.getQuestionMarks(pair.getRight());
+    budgetJdbcDao.insertBudget(dataMap, pair, qMarks, tableName);
+    Map<String, List<Map<String, MetaData>>> childDataMap = Converter.getChildren(dataMap);
+    childDataMap.forEach((key, childDataMapList) ->
+        childDataMapList.forEach(
+            child -> insertBudget(child, String.format("%s%s%s", tableName, "_", key), parentId,
+                true)
+        ));
   }
 }
