@@ -9,5 +9,4 @@ public class DataSnitchApplication {
   public static void main(String[] args) {
     SpringApplication.run(DataSnitchApplication.class, args);
   }
-
 }

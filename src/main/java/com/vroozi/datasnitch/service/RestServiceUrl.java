@@ -32,15 +32,18 @@ public class RestServiceUrl {
     return applicationConfig.fileStorageServiceAuthToken;
   }
 
-  public String getFileStorageProtocol(){
+  public String getFileStorageProtocol() {
     return applicationConfig.fileStorageProtocol;
   }
-  public String getFileStorageHost(){
+
+  public String getFileStorageHost() {
     return applicationConfig.fileStorageHost;
   }
+
   public String getFileStorageUrl() {
     return getFileStorageProtocol() + "://" + getFileStorageHost();
   }
+
   public String getSecureUploadFileURI() {
     return getFileStorageUrl() + getFileStorageServicePath();
   }

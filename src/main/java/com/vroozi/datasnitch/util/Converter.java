@@ -58,11 +58,12 @@ public class Converter {
         metaData.setType(value.getClass());
         if (metaData.getType() == JSONArray.class && finalChildFields != null) {
           JSONArray jsonArray = jsonObject.getJSONArray(key);
-          if (jsonArray.optJSONObject(0) == null){
+          if (jsonArray.optJSONObject(0) == null) {
             List<Object> elementList = getChildrenList(jsonArray, key);
             metaData.setValue(elementList);
           } else {
-            List<Map<String, MetaData>> childrenMapList = getChildrenMapList(jsonObject, finalChildFields, key);
+            List<Map<String, MetaData>> childrenMapList = getChildrenMapList(jsonObject,
+                finalChildFields, key);
             metaData.setValue(childrenMapList);
           }
 
@@ -90,11 +91,11 @@ public class Converter {
       String key) {
     JSONArray jsonArray = jsonObject.getJSONArray(key);
     List<Map<String, MetaData>> childrenMapList = new ArrayList<>();
-      for (int index = 0; index < jsonArray.length(); index++) {
-        JSONObject jObject = jsonArray.getJSONObject(index);
-        Map<String, MetaData> childDataMap = new HashMap<>();
-        putInMap(fields, childDataMap, jObject);
-        childrenMapList.add(childDataMap);
+    for (int index = 0; index < jsonArray.length(); index++) {
+      JSONObject jObject = jsonArray.getJSONObject(index);
+      Map<String, MetaData> childDataMap = new HashMap<>();
+      putInMap(fields, childDataMap, jObject);
+      childrenMapList.add(childDataMap);
     }
     return childrenMapList;
   }

@@ -7,10 +7,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 public class FileUtils {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileUtils.class);
-
 
   public static File writeStringToFile(String data, String location, String fileName)
       throws IOException {
@@ -28,13 +28,13 @@ public class FileUtils {
       if (fileWriter != null) {
         fileWriter.close();
       }
-
     }
     return file;
   }
 
   /**
    * Deletes a file from path if file exists
+   *
    * @param path
    */
   public static void deleteFile(String path) {

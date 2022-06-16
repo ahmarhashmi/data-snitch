@@ -8,9 +8,6 @@ import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author Sambhu
- */
 public final class JsonUtils {
 
   private static final Logger LOG = LoggerFactory.getLogger(JsonUtils.class);

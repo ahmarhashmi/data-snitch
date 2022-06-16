@@ -86,8 +86,9 @@ public class BudgetServiceImpl implements BudgetService {
   ) {
     MutableInt uploadedRecord = new MutableInt(0);
     budgets.forEach(budget -> {
-      String fileName = "Budget_" + budget.getName() + "_" + DATE_TIME_FORMAT.format(new Date()) + ".json";
-      if (uploadRecord(unitId, budget, fileName, bucketName, folderName)){
+      String fileName =
+          "Budget_" + budget.getName() + "_" + DATE_TIME_FORMAT.format(new Date()) + ".json";
+      if (uploadRecord(unitId, budget, fileName, bucketName, folderName)) {
         uploadedRecord.increment();
       }
     });
@@ -99,7 +100,8 @@ public class BudgetServiceImpl implements BudgetService {
     return false;
   }
 
-  boolean uploadRecord(String unitId, Object record, String fileName, String bucketName, String folderName) {
+  boolean uploadRecord(String unitId, Object record, String fileName, String bucketName,
+      String folderName) {
     try {
       String jsonString = JsonUtils.toSafeJsonString(record);
       if (StringUtils.isNotBlank(jsonString)) {
@@ -134,7 +136,8 @@ public class BudgetServiceImpl implements BudgetService {
   void insertBudget(
       Map<String, MetaData> dataMap, String tableName, String parentId, boolean isChild
   ) {
-    Pair<String, List<Object>> pair = Converter.getColumnHeadersAndValues(dataMap, parentId, isChild);
+    Pair<String, List<Object>> pair = Converter.getColumnHeadersAndValues(dataMap, parentId,
+        isChild);
     String qMarks = Converter.getQuestionMarks(pair.getRight());
     budgetJdbcDao.insertBudget(dataMap, pair, qMarks, tableName);
     Map<String, List<Map<String, MetaData>>> childDataMap = Converter.getChildren(dataMap);
