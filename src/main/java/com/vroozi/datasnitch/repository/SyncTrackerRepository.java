@@ -12,4 +12,8 @@ public interface SyncTrackerRepository extends MongoRepository<SyncTracker, Stri
   Optional<SyncTracker> findFirstByUnitIdAndCollectionNameOrderByLastReadDateDesc(
       String unitId, CollectionName collectionName
   );
+
+//  Optional<SyncTracker> fin(
+//      String unitId, CollectionName collectionName
+//  );
 }

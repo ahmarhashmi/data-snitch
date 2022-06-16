@@ -4,11 +4,9 @@ import static com.vroozi.datasnitch.util.Constants.COLLECTION_SYNC_TRACKER;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.Date;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.format.annotation.DateTimeFormat;
 
 @Document(collection = COLLECTION_SYNC_TRACKER)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -23,7 +21,7 @@ public class SyncTracker implements Serializable {
   private Integer readRecordCount;
   private Integer postedRecordCount;
 
-  private boolean uploaded;
+  private boolean triggered;
 
   public String getId() {
     return id;
@@ -41,12 +39,12 @@ public class SyncTracker implements Serializable {
     this.unitId = unitId;
   }
 
-  public boolean isUploaded() {
-    return uploaded;
+  public boolean isTriggered() {
+    return triggered;
   }
 
-  public void setUploaded(boolean uploaded) {
-    this.uploaded = uploaded;
+  public void setTriggered(boolean triggered) {
+    this.triggered = triggered;
   }
 
   public CollectionName getCollectionName() {
