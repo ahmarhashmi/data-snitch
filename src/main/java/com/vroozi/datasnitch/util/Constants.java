@@ -7,10 +7,6 @@ public class Constants {
 
   public static final String COLLECTION_BUDGET = "budgets";
   public static final String COLLECTION_SYNC_TRACKER = "sync_tracker";
-  public static final String COLLECTION_PERIODIC_BUDGET_ALLOCATION = "periodic_budget_allocation";
-  public static final String COLLECTION_BUDGET_UPDATE_LOGS = "budget_update_logs";
-  public static final String COLLECTION_DOCUMENT_BUDGET_HISTORY = "document_budget_history";
-  public static final String BEARER = "Bearer";
 
   public static class BudgetFields {
 

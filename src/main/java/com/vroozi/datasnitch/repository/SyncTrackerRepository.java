@@ -13,7 +13,5 @@ public interface SyncTrackerRepository extends MongoRepository<SyncTracker, Stri
       String unitId, CollectionName collectionName
   );
 
-//  Optional<SyncTracker> fin(
-//      String unitId, CollectionName collectionName
-//  );
+  Optional<SyncTracker> findFirstByTriggeredNextFalseOrderByLastReadDateDesc();
 }

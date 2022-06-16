@@ -21,7 +21,7 @@ public class SyncTracker implements Serializable {
   private Integer readRecordCount;
   private Integer postedRecordCount;
 
-  private boolean triggered;
+  private boolean triggeredNext;
 
   public String getId() {
     return id;
@@ -39,12 +39,12 @@ public class SyncTracker implements Serializable {
     this.unitId = unitId;
   }
 
-  public boolean isTriggered() {
-    return triggered;
+  public boolean isTriggeredNext() {
+    return triggeredNext;
   }
 
-  public void setTriggered(boolean triggered) {
-    this.triggered = triggered;
+  public void setTriggeredNext(boolean triggeredNext) {
+    this.triggeredNext = triggeredNext;
   }
 
   public CollectionName getCollectionName() {

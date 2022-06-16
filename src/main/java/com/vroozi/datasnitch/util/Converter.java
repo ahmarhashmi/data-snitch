@@ -70,9 +70,6 @@ public class Converter {
         } else {
           metaData.setValue(value);
         }
-        if (metaData.getType() == String.class) {
-          metaData.setLength(((String) value).length());
-        }
         dataMap.put(key, metaData);
       });
       putInMap(parentFields, dataMap, jsonObject);
@@ -119,22 +116,9 @@ public class Converter {
         MetaData metaData = new MetaData();
         metaData.setValue(value);
         metaData.setType(field.getType());
-        if (metaData.getType() == String.class && Objects.nonNull(value)) {
-          metaData.setLength(((String) value).length());
-        }
         dataMap.put(field.getName(), metaData);
       }
     }
-  }
-
-  public static Map<String, Object> convertToObjectMap(Budget budget) {
-    Map<String, Object> dataMap = new HashMap<>();
-    String jsonStr = JsonUtils.toSafeJsonString(budget);
-    JSONObject jsonObject = new JSONObject(jsonStr);
-    jsonObject.keySet().forEach(key -> {
-      dataMap.put(key, jsonObject.get(key));
-    });
-    return dataMap;
   }
 
   public static String concatenateColumns(Map<String, MetaData> dataMap) {
@@ -146,7 +130,7 @@ public class Converter {
   }
 
   /**
-   * Returns Pair of comma separated column names (Left) and values (Right)
+   * Returns Pair of comma separated column names String (Left) and List of values (Right)
    */
   public static Pair<String, List<Object>> getColumnHeadersAndValues(
       Map<String, MetaData> dataMap, String parentId, boolean isChild
@@ -162,13 +146,13 @@ public class Converter {
         }
       } else if (BOOL.equals(type)) {
         keyJoiner.add(key);
-        values.add(new Boolean(value.getValue().toString()));
+        values.add(Boolean.valueOf(value.getValue().toString()));
       } else if (INT.equals(type) || INT8.equals(type)) {
         keyJoiner.add(key);
-        values.add(new Integer(value.getValue().toString()));
+        values.add(Integer.valueOf(value.getValue().toString()));
       } else if (DATE.equals(type)) {
         keyJoiner.add(key);
-        values.add(new Timestamp(new Long(value.getValue().toString())).toString());
+        values.add(new Timestamp(Long.parseLong(value.getValue().toString())).toString());
       }
     });
     if (isChild) {

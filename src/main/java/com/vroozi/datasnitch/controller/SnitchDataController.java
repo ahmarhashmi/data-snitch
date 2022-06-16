@@ -18,17 +18,27 @@ public class SnitchDataController {
   @Autowired
   private BudgetService budgetService;
 
-  @PostMapping(value = "/organization/{unitId}/upload-record-to-s3")
-  public void sendLatestRecordsToS3(@PathVariable("unitId") String unitId) {
-
-  }
-
-  @GetMapping(value = "organization/{unitId}/collections/{collectionName}/upload-budget-to-s3", consumes = APPLICATION_JSON_VALUE)
-  public void sendLatestBudgetToS3(
+  /**
+   * Posts updated records on redshift for the given unitId and collection name
+   */
+  @GetMapping(value = "organization/{unitId}/collections/{collectionName}/post-updated", consumes = APPLICATION_JSON_VALUE)
+  public Integer postUpdatedRecord(
       @PathVariable("unitId") String unitId,
       @PathVariable("collectionName") CollectionName collectionName
   ) {
-    budgetService.readAndPost(unitId, collectionName);
+    return budgetService.readAndPost(unitId, collectionName);
+  }
+
+  /**
+   * Posts all records on redshift for the given unitId and collection name. This can be used for
+   * the first time when there is no record uploaded on redshift for the unitId and collection name.
+   */
+  @GetMapping(value = "organization/{unitId}/collections/{collectionName}/post-all", consumes = APPLICATION_JSON_VALUE)
+  public Integer postAllRecords(
+      @PathVariable("unitId") String unitId,
+      @PathVariable("collectionName") CollectionName collectionName
+  ) {
+    return budgetService.readAndPostAllRecords(unitId, collectionName);
   }
 
 }

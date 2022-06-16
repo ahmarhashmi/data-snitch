@@ -7,7 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class BudgetJdbcDaoImpl implements BudgetJdbcDao {
+public class BudgetDaoImpl implements BudgetDao {
 
   @Autowired
   private JdbcTemplate jdbcTemplate;
