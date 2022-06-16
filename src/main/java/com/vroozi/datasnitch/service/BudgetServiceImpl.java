@@ -99,6 +99,7 @@ public class BudgetServiceImpl implements BudgetService {
     budgetDao.insertBudget(pair, qMarks, tableName, parentId, isChild);
     Map<String, List<Object>> childDataMap = Converter.getChildren(dataMap);
     childDataMap.forEach((key, value) -> {
+      String childTableName = String.format("%s%s%s", tableName, "_", key);
       if (CollectionUtils.isNotEmpty(value)) {
         if (String.class.equals(value.get(0).getClass())) {
           List<String> childStringList = value.stream()
@@ -108,6 +109,7 @@ public class BudgetServiceImpl implements BudgetService {
           insertChildHaveOnlyStringList(
               childStringList, String.format("%s%s%s", tableName, "_", key), key, parentId);
         } else {
+          budgetDao.deleteChildByParentId(childTableName, parentId);
           value.forEach(metaDataMap -> {
             Map<String, MetaData> childMap = new HashMap<>();
             try {
@@ -116,8 +118,6 @@ public class BudgetServiceImpl implements BudgetService {
               LOGGER.error("Exception occoured while parsing Object to metaData Map", e);
             }
             if (!childMap.isEmpty()) {
-              String childTableName = String.format("%s%s%s", tableName, "_", key);
-              budgetDao.deleteChildByParentId(childTableName, parentId);
               insertBudget(childMap, childTableName, parentId, true);
             }
           });
