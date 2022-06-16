@@ -96,7 +96,7 @@ public class BudgetServiceImpl implements BudgetService {
     Pair<String, List<Object>> pair = Converter.getColumnHeadersAndValues(dataMap, parentId,
         isChild);
     String qMarks = Converter.getQuestionMarks(pair.getRight());
-    budgetDao.insertBudget(pair, qMarks, tableName);
+    budgetDao.insertBudget(pair, qMarks, tableName, parentId, isChild);
     Map<String, List<Object>> childDataMap = Converter.getChildren(dataMap);
     childDataMap.forEach((key, value) -> {
       if (CollectionUtils.isNotEmpty(value)) {
@@ -116,7 +116,9 @@ public class BudgetServiceImpl implements BudgetService {
               LOGGER.error("Exception occoured while parsing Object to metaData Map", e);
             }
             if (!childMap.isEmpty()) {
-              insertBudget(childMap, String.format("%s%s%s", tableName, "_", key), parentId, true);
+              String childTableName = String.format("%s%s%s", tableName, "_", key);
+              budgetDao.deleteChildByParentId(childTableName, parentId);
+              insertBudget(childMap, childTableName, parentId, true);
             }
           });
         }
@@ -127,6 +129,7 @@ public class BudgetServiceImpl implements BudgetService {
   private void insertChildHaveOnlyStringList(
       List<String> childStringList, String tableName, String key, String parentId
   ) {
+    budgetDao.deleteChildByParentId(tableName, parentId);
     childStringList.forEach(value -> {
       StringJoiner keyJoiner = new StringJoiner(",");
       List<Object> values = new LinkedList<>();
@@ -136,7 +139,7 @@ public class BudgetServiceImpl implements BudgetService {
       values.add(value);
       Pair<String, List<Object>> pair = Pair.of(keyJoiner.toString(), values);
       String qMarks = Converter.getQuestionMarks(pair.getRight());
-      budgetDao.insertBudget(pair, qMarks, tableName);
+      budgetDao.insertBudget(pair, qMarks, tableName, parentId, true);
     });
   }
 

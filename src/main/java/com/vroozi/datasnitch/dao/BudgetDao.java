@@ -5,6 +5,11 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public interface BudgetDao {
 
-  void insertBudget(Pair<String, List<Object>> pair, String qMarks,
-      String tableName);
+  void insertBudget(
+      Pair<String, List<Object>> pair, String qMarks, String tableName, String parentId,
+      boolean isChild
+  );
+
+  void deleteChildByParentId(String tableName, String parentId);
+
 }
