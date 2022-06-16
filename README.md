@@ -1,6 +1,6 @@
 # DATA-SNITCH
 
-Data Snitch is an ETL tool that Evaluates the data from Mongodb, Transforms it and then Loads the data to Redshift
+Data Snitch is an ETL tool that Extracts the data from Mongodb, Transforms it and then Loads the data to Redshift
 
 ## Built With:
 * Java 17
