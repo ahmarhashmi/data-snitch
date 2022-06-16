@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
-public class SnitchDataController {
+public class DataSnitchController {
 
   @Autowired
   private BudgetService budgetService;
