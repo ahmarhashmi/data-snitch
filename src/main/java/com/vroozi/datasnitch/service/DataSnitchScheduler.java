@@ -31,7 +31,7 @@ public class DataSnitchScheduler {
   @Autowired
   private BudgetService budgetService;
 
-//  @Scheduled(cron = "${sync-tracker-scheduler:0/30 * * * * *}")
+  @Scheduled(cron = "${sync-tracker-scheduler:0/30 * * * * *}")
   public void scheduledRun() {
     syncTrackerRepository.findFirstByTriggeredNextFalseOrderByLastReadDateDesc()
         .ifPresent(syncTracker -> {
@@ -51,7 +51,7 @@ public class DataSnitchScheduler {
               tracker.setPostedRecordCount(postedCount.getValue());
               syncTracker.setTriggeredNext(true);
               syncTrackerRepository.save(syncTracker);
-              syncTrackerRepository.save(syncTracker);
+              syncTrackerRepository.save(tracker);
             }
           }
         });
