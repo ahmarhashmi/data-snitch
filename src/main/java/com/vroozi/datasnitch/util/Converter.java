@@ -43,7 +43,8 @@ public class Converter {
       Class objClass = Class.forName(budget.getClass().getName());
       Class supperClass = objClass.getSuperclass();
       Field[] childFields = null;
-      if (Objects.nonNull(budget.getBudgetAssociations().get(0))) {
+      if (CollectionUtils.isNotEmpty(budget.getBudgetAssociations())
+          && Objects.nonNull(budget.getBudgetAssociations().get(0))) {
         childFields = getChildFields(budget.getBudgetAssociations().get(0).getClass());
       }
       Field[] fields = objClass.getDeclaredFields();
