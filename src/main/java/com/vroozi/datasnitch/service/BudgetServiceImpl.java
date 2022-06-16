@@ -14,15 +14,23 @@ import com.vroozi.datasnitch.util.JsonUtils;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.AbstractMap;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +38,14 @@ import org.springframework.stereotype.Service;
 public class BudgetServiceImpl implements BudgetService {
 
   public static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("ddMMyyyyhhmmss");
+  private static final Logger LOGGER = LoggerFactory.getLogger(BudgetServiceImpl.class);
+
+
+  private static final Map<String, String> FIELD_MAPPER_MAPPER = Stream
+      .of(new AbstractMap.SimpleEntry<>("approverIds", "approverId"))
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+
 
   @Autowired
   private BudgetRepository budgetRepository;
@@ -139,12 +155,48 @@ public class BudgetServiceImpl implements BudgetService {
     Pair<String, List<Object>> pair = Converter.getColumnHeadersAndValues(dataMap, parentId,
         isChild);
     String qMarks = Converter.getQuestionMarks(pair.getRight());
-    budgetJdbcDao.insertBudget(dataMap, pair, qMarks, tableName);
-    Map<String, List<Map<String, MetaData>>> childDataMap = Converter.getChildren(dataMap);
-    childDataMap.forEach((key, childDataMapList) ->
-        childDataMapList.forEach(
-            child -> insertBudget(child, String.format("%s%s%s", tableName, "_", key), parentId,
-                true)
-        ));
+    budgetJdbcDao.insertBudget(pair, qMarks, tableName);
+    Map<String, List<Object>> childDataMap = Converter.getChildren(dataMap);
+    childDataMap.forEach((key,value) -> {
+      if (CollectionUtils.isNotEmpty(value)) {
+        if (String.class.equals(value.get(0).getClass())) {
+          List<String> childStringList = value.stream()
+              .map(object -> Objects.toString(object, null))
+              .filter(StringUtils::isNotBlank)
+              .toList();
+          insertChildHaveOnlyStringList(
+              childStringList, String.format("%s%s%s", tableName, "_", key), key, parentId);
+        } else {
+          value.forEach(metaDataMap -> {
+            Map<String, MetaData> childMap= new HashMap<>();
+            try {
+              childMap = (Map<String, MetaData>) metaDataMap;
+            } catch (Exception e) {
+              LOGGER.error("Exception occoured while parsing Object to metaData Map", e);
+            }
+            if (!childMap.isEmpty()) {
+              insertBudget(childMap, String.format("%s%s%s", tableName, "_", key), parentId, true);
+            }
+          });
+        }
+      }
+    });
   }
+
+  private void insertChildHaveOnlyStringList(
+      List<String> childStringList, String tableName, String key, String parentId
+  ) {
+    childStringList.forEach(value -> {
+      StringJoiner keyJoiner = new StringJoiner(",");
+      List<Object> values = new LinkedList<>();
+      keyJoiner.add("parentId");
+      values.add(parentId);
+      keyJoiner.add(FIELD_MAPPER_MAPPER.get(key));
+      values.add(value);
+      Pair<String, List<Object>> pair = Pair.of(keyJoiner.toString(), values);
+      String qMarks = Converter.getQuestionMarks(pair.getRight());
+      budgetJdbcDao.insertBudget(pair, qMarks, tableName);
+    });
+  }
+
 }

@@ -178,16 +178,16 @@ public class Converter {
     return Pair.of(keyJoiner.toString(), values);
   }
 
-  public static Map<String, List<Map<String, MetaData>>> getChildren(
+  public static Map<String, List<Object>> getChildren(
       Map<String, MetaData> dataMap) {
-    Map<String, List<Map<String, MetaData>>> childMetaData = new HashMap<>();
+    Map<String, List<Object>> childMetaData = new HashMap<>();
     dataMap.forEach((key, value) -> {
       if (Objects.nonNull(value) && Objects.nonNull(value.getValue())) {
         String type = getType(value.getType());
         if (LIST.equals(type)) {
-          List<Map<String, MetaData>> child = new ArrayList<>();
+          List<Object> child = new ArrayList<>();
           try {
-            child = (List<Map<String, MetaData>>) value.getValue();
+            child = (List<Object>) value.getValue();
           } catch (Exception e) {
             LOGGER.info("Exception occoured while parsing the list for field {}", key);
           }
